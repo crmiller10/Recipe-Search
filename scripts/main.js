@@ -1,38 +1,43 @@
 
-//First, find our Search Bar container
+let container = document.querySelector('#container');
+let item = document.querySelector('#search');
+let find = document.querySelector('#find');
 
-let container = document.querySelector('.search')
+let findMe = '';
+find.addEventListener('click', function (){
+  findMe = item.value
+      fetch('https://recipepuppyproxy.herokuapp.com/api/?q='+findMe)
+          .then(convertData)
+          .then(printData);
+});
 
-//Create our fetch request to API
+function convertData(data){
+  return data.json();
+}
 
-fetch ('http://recipepuppyproxy.herokuapp.com/api/?q=omelet')
-//Data is fetched & we get a promise
-  .then(
-//The promise returns a response from the server
+function printData(data){
+  console.log(data);
 
-  function convertFromJson(data){
-    return data.json();
-    })
-  .then(function(data){
-    console.log(data);
-    let titles = '';
+  let totalItems='';
+  let image = '';
+  for (let i = 0; i < data.results.length; i++){
+      if (data.results[i].thumbnail == ''){
+        image = 'http://via.placeholder.com/100x100'}
+        else {image = data.results[i].thumbnail}
 
-  for (i = 0; i < data.results.length; i++){
-    console.log(data.results[i].title);
-    titles += `
-        <li class="cards-item">
-          <div class="card">
-            <div class="card-image">
-              <img class="pic" src="${data.results[i].thumbnail}">
-            </div>
-            <div class="card-content">
-              <h2>${data.results[i].title}</h2>
-              <p>${data.results[i].ingredients}</p>
-            </div>
-          </div>
-        </li>
-      `
-  }
-
-  document.querySelector('.container .cards').innerHTML = titles;
-  });
+      let recipe=`
+        <a href="${data.results[i].href}">
+          <div class="cards-item">
+            <div class="card">
+              <div class="card-image">
+                  <img src="${image}" alt="${data.results[i].title}">
+                  <h4>${data.results[i].title}</h4>
+                  <p>${data.results[i].ingredients}</p>
+                </div>
+              </div>
+            </a>
+          `
+        totalItems += recipe
+       }
+      container.innerHTML = totalItems;
+    }
